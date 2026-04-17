@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>JalTrack Pune — Smart Water Tanker Management</title>
+  <meta name="description" content="Track, book, and manage water tankers in Pune. Real-time live tracking, OTP verification, complaints, and shortage alerts for residents, societies, and city authorities." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+  <!-- Splash Screen -->
+  <div id="splash-screen" class="splash-screen">
+    <div class="splash-logo">
+      <div class="splash-icon">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="dropGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#38bdf8"/>
+              <stop offset="100%" style="stop-color:#0369a1"/>
+            </linearGradient>
+          </defs>
+          <path d="M32 8 C32 8 14 28 14 40 C14 49.9 22.1 58 32 58 C41.9 58 50 49.9 50 40 C50 28 32 8 32 8Z" fill="url(#dropGrad)"/>
+          <path d="M22 42 C22 47.5 26.5 52 32 52" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+          <circle cx="44" cy="20" r="8" fill="#0f172a" opacity="0.85"/>
+          <path d="M44 16 L44 24 M40 20 L48 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>JalTrack</h1>
+      <p>Pune</p>
+    </div>
+    <div class="splash-tagline">Smart Water for Every Home</div>
+    <div class="splash-loader">
+      <div class="loader-bar"></div>
+    </div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="login-screen hidden">
+    <div class="login-container">
+      <div class="login-header">
+        <div class="login-logo-icon">
+          <i data-lucide="droplet" size="32"></i>
+        </div>
+        <h2>Welcome to JalTrack</h2>
+        <p>Select your login role to continue</p>
+      </div>
+      
+      <div class="login-roles">
+        <div class="role-card" onclick="login('user')">
+          <div class="role-icon user-icon"><i data-lucide="user" size="28"></i></div>
+          <div class="role-info">
+            <h3>Resident / Society</h3>
+            <p>Book tankers, track deliveries, and report issues.</p>
+          </div>
+          <i data-lucide="arrow-right" class="role-arrow"></i>
+        </div>
+        
+        <div class="role-card admin" onclick="login('admin')">
+          <div class="role-icon admin-icon"><i data-lucide="shield" size="28"></i></div>
+          <div class="role-info">
+            <h3>PMC Authority</h3>
+            <p>Monitor city fleet, manage complaints, and dispatches.</p>
+          </div>
+          <i data-lucide="arrow-right" class="role-arrow"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Shell -->
+  <div id="app" class="app hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 40 40" fill="none">
+              <defs>
+                <linearGradient id="sidebarDropGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#38bdf8"/>
+                  <stop offset="100%" style="stop-color:#0369a1"/>
+                </linearGradient>
+              </defs>
+              <path d="M20 4 C20 4 8 17 8 25 C8 31.6 13.4 37 20 37 C26.6 37 32 31.6 32 25 C32 17 20 4 20 4Z" fill="url(#sidebarDropGrad)"/>
+              <path d="M13 26.5 C13 29.8 16.1 32.5 20 32.5" stroke="white" stroke-width="1.8" stroke-linecap="round" opacity="0.5"/>
+            </svg>
+          </div>
+          <div>
+            <span class="logo-name">JalTrack</span>
+            <span class="logo-city">Pune</span>
+          </div>
+        </div>
+        <button id="sidebar-close" class="sidebar-close-btn">
+          <i data-lucide="x" size="20"></i>
+        </button>
+      </div>
+
+      <div class="user-card">
+        <div class="user-avatar" id="sidebar-user-avatar">RK</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-user-name">Rahul Kulkarni</div>
+          <div class="user-type" id="sidebar-user-type">Resident · Kothrud</div>
+        </div>
+        <div class="user-verified"><i data-lucide="shield-check" size="16"></i></div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label" data-role="user">Main</div>
+        <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard" data-role="user">
+          <i data-lucide="layout-dashboard" size="20"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-page="book" id="nav-book" data-role="user">
+          <i data-lucide="droplets" size="20"></i>
+          <span>Book Tanker</span>
+          <span class="nav-badge">New</span>
+        </a>
+        <a href="#" class="nav-item" data-page="track" id="nav-track" data-role="user">
+          <i data-lucide="map-pin" size="20"></i>
+          <span>Live Tracking</span>
+        </a>
+        <a href="#" class="nav-item" data-page="history" id="nav-history" data-role="user">
+          <i data-lucide="history" size="20"></i>
+          <span>History</span>
+        </a>
+
+        <div class="nav-section-label" data-role="community">Community</div>
+        <a href="#" class="nav-item" data-page="complaints" id="nav-complaints" data-role="community">
+          <i data-lucide="message-square-warning" size="20"></i>
+          <span>Complaints</span>
+          <span class="nav-badge alert">2</span>
+        </a>
+        <a href="#" class="nav-item" data-page="alerts" id="nav-alerts" data-role="community">
+          <i data-lucide="bell" size="20"></i>
+          <span>Shortage Alerts</span>
+        </a>
+        <a href="#" class="nav-item" data-page="society" id="nav-society" data-role="user">
+          <i data-lucide="building-2" size="20"></i>
+          <span>Society Hub</span>
+        </a>
+
+        <div class="nav-section-label" data-role="admin">Authority</div>
+        <a href="#" class="nav-item" data-page="admin" id="nav-admin" data-role="admin">
+          <i data-lucide="shield" size="20"></i>
+          <span>Admin Dashboard</span>
+        </a>
+        
+        <div class="nav-section-label" style="margin-top: 2rem;">Account</div>
+        <a href="#" class="nav-item" onclick="logout()">
+          <i data-lucide="log-out" size="20"></i>
+          <span>Logout</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="pmc-badge">
+          <i data-lucide="check-circle-2" size="14"></i>
+          <span>PMC Approved Platform</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+      <!-- Global Emergency Banner -->
+      <div id="global-emergency-banner" class="global-emergency-banner hidden">
+        <div class="geb-content">
+          <i data-lucide="alert-circle" size="18"></i>
+          <span id="global-alert-text">Emergency: Pipe leak in Kothrud — Supply disrupted.</span>
+        </div>
+        <button class="geb-close" onclick="this.parentElement.classList.add('hidden')"><i data-lucide="x" size="16"></i></button>
+      </div>
+
+      <!-- Top Bar -->
+      <header class="topbar">
+        <button id="menu-btn" class="menu-btn">
+          <i data-lucide="menu" size="22"></i>
+        </button>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-actions">
+          <button class="topbar-icon-btn" id="alert-btn">
+            <i data-lucide="bell" size="20"></i>
+            <span class="topbar-badge">3</span>
+          </button>
+          <button class="topbar-icon-btn">
+            <i data-lucide="search" size="20"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Pages -->
+      <main class="main-content" id="main-content">
+
+        <!-- ===== DASHBOARD PAGE ===== -->
+        <section class="page active" id="page-dashboard">
+          <div class="page-inner">
+
+            <!-- Hero Card -->
+            <div class="hero-card">
+              <div class="hero-bg-wave"></div>
+              <div class="hero-content">
+                <div class="hero-greeting">
+                  <div>
+                    <p class="hero-hello" id="dashboard-welcome">Good Morning, Rahul 👋</p>
+                    <h2 class="hero-title">Water Status: <span class="status-chip moderate">Moderate Demand</span></h2>
+                  </div>
+                  <div class="hero-weather">
+                    <i data-lucide="sun" size="28"></i>
+                    <span>36°C</span>
+                  </div>
+                </div>
+                <div class="hero-stats">
+                  <div class="hero-stat">
+                    <span class="hero-stat-value">2</span>
+                    <span class="hero-stat-label">Active Bookings</span>
+                  </div>
+                  <div class="hero-stat-divider"></div>
+                  <div class="hero-stat">
+                    <span class="hero-stat-value">6.2k</span>
+                    <span class="hero-stat-label">Litres This Month</span>
+                  </div>
+                  <div class="hero-stat-divider"></div>
+                  <div class="hero-stat">
+                    <span class="hero-stat-value">98%</span>
+                    <span class="hero-stat-label">Delivery Rate</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section-title">Quick Actions</div>
+            <div class="quick-actions">
+              <button class="quick-action-btn primary" data-page="book" onclick="navigateTo('book')">
+                <div class="qa-icon"><i data-lucide="droplets" size="22"></i></div>
+                <span>Book Tanker</span>
+              </button>
+              <button class="quick-action-btn secondary" onclick="navigateTo('track')">
+                <div class="qa-icon"><i data-lucide="navigation" size="22"></i></div>
+                <span>Track Live</span>
+              </button>
+              <button class="quick-action-btn warning" onclick="navigateTo('complaints')">
+                <div class="qa-icon"><i data-lucide="alert-triangle" size="22"></i></div>
+                <span>Report Issue</span>
+              </button>
+              <button class="quick-action-btn info" onclick="navigateTo('alerts')">
+                <div class="qa-icon"><i data-lucide="bell-ring" size="22"></i></div>
+                <span>Alerts</span>
+              </button>
+            </div>
+
+            <!-- Active Booking Card -->
+            <div class="section-title">Active Booking</div>
+            <div class="active-booking-card">
+              <div class="booking-header">
+                <div class="booking-id-row">
+                  <span class="booking-id">#TKR-2847</span>
+                  <span class="booking-status en-route">En Route</span>
+                </div>
+                <div class="booking-type">
+                  <span class="pmc-tag"><i data-lucide="shield-check" size="12"></i> PMC Approved</span>
+                </div>
+              </div>
+              <div class="booking-eta">
+                <i data-lucide="clock" size="16"></i>
+                <span>Arrives in <strong>18 minutes</strong> · 3.2 km away</span>
+              </div>
+              <div class="delivery-progress">
+                <div class="progress-steps">
+                  <div class="step done"><div class="step-dot"></div><span>Booked</span></div>
+                  <div class="step-line done"></div>
+                  <div class="step done"><div class="step-dot"></div><span>Dispatched</span></div>
+                  <div class="step-line active"></div>
+                  <div class="step active"><div class="step-dot pulsing"></div><span>En Route</span></div>
+                  <div class="step-line"></div>
+                  <div class="step"><div class="step-dot"></div><span>Delivered</span></div>
+                </div>
+              </div>
+              <div class="booking-driver">
+                <div class="driver-avatar">SK</div>
+                <div class="driver-details">
+                  <div class="driver-name">Sunil Kamble</div>
+                  <div class="driver-vehicle">MH-12 TW 4521 · 6000L Tanker</div>
+                </div>
+                <button class="call-btn"><i data-lucide="phone" size="16"></i></button>
+              </div>
+              <button class="track-now-btn" onclick="navigateTo('track')">
+                <i data-lucide="map" size="16"></i> Track Live on Map
+              </button>
+            </div>
+
+            <!-- Shortage Alert Banner -->
+            <div class="shortage-alert-banner">
+              <div class="alert-icon"><i data-lucide="alert-circle" size="20"></i></div>
+              <div class="alert-text">
+                <strong>Shortage Alert:</strong> Warje area — high demand today. Book early!
+              </div>
+              <button class="alert-action" onclick="navigateTo('alerts')">View</button>
+            </div>
+
+            <!-- Usage Chart -->
+            <div class="section-title">Monthly Water Usage</div>
+            <div class="usage-card">
+              <div class="usage-header">
+                <div>
+                  <div class="usage-total">6,200 L</div>
+                  <div class="usage-label">This Month (April)</div>
+                </div>
+                <div class="usage-change positive">
+                  <i data-lucide="trending-down" size="14"></i> -8% vs March
+                </div>
+              </div>
+              <div class="bar-chart" id="usage-chart"></div>
+              <div class="bar-labels">
+                <span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="section-title">Recent Activity</div>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon delivered"><i data-lucide="check-circle" size="16"></i></div>
+                <div class="activity-content">
+                  <div class="activity-title">6000L Delivered — OTP Verified</div>
+                  <div class="activity-meta">Yesterday · ₹850 · PMC Tanker #482</div>
+                </div>
+                <div class="activity-rating">⭐ 4.5</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon complaint"><i data-lucide="flag" size="16"></i></div>
+                <div class="activity-content">
+                  <div class="activity-title">Complaint Filed — Overcharging</div>
+                  <div class="activity-meta">Apr 14 · Ref: CMP-1043 · Under Review</div>
+                </div>
+                <div class="activity-rating status-pending">Pending</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon delivered"><i data-lucide="check-circle" size="16"></i></div>
+                <div class="activity-content">
+                  <div class="activity-title">4000L Delivered — OTP Verified</div>
+                  <div class="activity-meta">Apr 12 · ₹620 · Private Tanker #P-91</div>
+                </div>
+                <div class="activity-rating">⭐ 3.8</div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== BOOK TANKER PAGE ===== -->
+        <section class="page" id="page-book">
+          <div class="page-inner">
+            <div class="page-header-card blue-gradient">
+              <h2>Book Water Tanker</h2>
+              <p>Schedule reliable water delivery to your doorstep</p>
+            </div>
+
+            <div class="book-form-card">
+              <div class="form-section-title"><i data-lucide="map-pin" size="16"></i> Delivery Location</div>
+
+              <div class="form-group">
+                <label>Area / Locality</label>
+                <div class="select-wrapper">
+                  <select id="locality-select" class="form-select">
+                    <option value="">Select your area…</option>
+                    <option value="kothrud" selected>Kothrud</option>
+                    <option value="warje">Warje</option>
+                    <option value="hadapsar">Hadapsar</option>
+                    <option value="baner">Baner</option>
+                    <option value="wakad">Wakad</option>
+                    <option value="katraj">Katraj</option>
+                    <option value="kondhwa">Kondhwa</option>
+                    <option value="chinchwad">Chinchwad</option>
+                    <option value="pimpri">Pimpri</option>
+                    <option value="aundh">Aundh</option>
+                  </select>
+                  <i data-lucide="chevron-down" size="16"></i>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Address / Society Name</label>
+                <input type="text" class="form-input" placeholder="e.g. Sai Paradise CHS, Flat 204, Lane 7" id="address-input" />
+              </div>
+
+              <div class="form-section-title"><i data-lucide="droplets" size="16"></i> Tanker Details</div>
+
+              <div class="tanker-type-cards">
+                <div class="tanker-type-card selected" id="tc-pmc" onclick="selectTankerType('pmc')">
+                  <div class="tt-badge pmc">PMC</div>
+                  <div class="tt-name">Municipal Tanker</div>
+                  <div class="tt-capacity">6,000 L</div>
+                  <div class="tt-price">₹0–₹200/Trip*</div>
+                  <div class="tt-note">Subsidized rates apply</div>
+                </div>
+                <div class="tanker-type-card" id="tc-private" onclick="selectTankerType('private')">
+                  <div class="tt-badge private">PRIVATE</div>
+                  <div class="tt-name">Private Tanker</div>
+                  <div class="tt-capacity">4,000–10,000 L</div>
+                  <div class="tt-price">₹600–₹1,400/Trip</div>
+                  <div class="tt-note">Faster availability</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Volume Needed</label>
+                <div class="volume-selector">
+                  <button class="vol-btn" onclick="setVolume(2000)" id="vol-2000">2,000 L</button>
+                  <button class="vol-btn active" onclick="setVolume(4000)" id="vol-4000">4,000 L</button>
+                  <button class="vol-btn" onclick="setVolume(6000)" id="vol-6000">6,000 L</button>
+                  <button class="vol-btn" onclick="setVolume(10000)" id="vol-10000">10,000 L</button>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group half">
+                  <label>Preferred Date</label>
+                  <input type="date" class="form-input" id="delivery-date" />
+                </div>
+                <div class="form-group half">
+                  <label>Preferred Time</label>
+                  <div class="select-wrapper">
+                    <select class="form-select" id="delivery-time">
+                      <option>Morning (6–10 AM)</option>
+                      <option>Afternoon (10–2 PM)</option>
+                      <option>Evening (2–6 PM)</option>
+                    </select>
+                    <i data-lucide="chevron-down" size="16"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Special Instructions <span class="optional-tag">(optional)</span></label>
+                <textarea class="form-textarea" placeholder="Terrace access, contact watchman at gate 2, etc." rows="3" id="special-instructions"></textarea>
+              </div>
+
+              <div class="price-estimate-card" id="price-estimate">
+                <div class="price-row">
+                  <span>Tanker Type</span>
+                  <span id="price-type">PMC Municipal</span>
+                </div>
+                <div class="price-row">
+                  <span>Volume</span>
+                  <span id="price-volume">4,000 L</span>
+                </div>
+                <div class="price-row">
+                  <span>Estimated Fare</span>
+                  <span id="price-fare" class="price-highlight">₹120–₹160</span>
+                </div>
+                <div class="price-divider"></div>
+                <div class="price-row small">
+                  <span>Service Tax (5%)</span>
+                  <span id="price-tax">₹6–₹8</span>
+                </div>
+              </div>
+
+              <button class="book-btn" id="book-confirm-btn" onclick="confirmBooking()">
+                <i data-lucide="check-circle" size="18"></i>
+                Confirm Booking
+              </button>
+            </div>
+
+            <!-- Booking Confirmation Modal -->
+            <div class="modal-overlay hidden" id="booking-modal">
+              <div class="modal-card">
+                <div class="modal-success-icon">
+                  <i data-lucide="check-circle" size="48"></i>
+                </div>
+                <h3>Booking Confirmed!</h3>
+                <div class="modal-booking-id">#TKR-<span id="modal-booking-num">3291</span></div>
+                <p>Your tanker has been booked. You'll receive an SMS and in-app notification when the driver is on the way.</p>
+                <div class="modal-info-row">
+                  <i data-lucide="clock" size="16"></i>
+                  <span>Expected in <strong>45–90 mins</strong></span>
+                </div>
+                <div class="modal-info-row">
+                  <i data-lucide="shield" size="16"></i>
+                  <span>OTP will be sent for delivery verification</span>
+                </div>
+                <button class="modal-btn" onclick="closeModal('booking-modal')">Done</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== LIVE TRACKING PAGE ===== -->
+        <section class="page" id="page-track">
+          <div class="page-inner no-pad">
+            <!-- Map Simulation -->
+            <div class="map-container" id="map-container">
+              <div class="map-bg">
+                <!-- Animated map roads -->
+                <div class="map-road horizontal" style="top:30%; left:0; width:100%;"></div>
+                <div class="map-road horizontal" style="top:55%; left:0; width:100%;"></div>
+                <div class="map-road horizontal" style="top:75%; left:0; width:100%;"></div>
+                <div class="map-road vertical" style="left:20%; top:0; height:100%;"></div>
+                <div class="map-road vertical" style="left:50%; top:0; height:100%;"></div>
+                <div class="map-road vertical" style="left:80%; top:0; height:100%;"></div>
+
+                <!-- Location markers -->
+                <div class="map-marker destination" style="left:50%; top:40%;">
+                  <div class="marker-dot dest-dot"></div>
+                  <div class="marker-label">Your Home</div>
+                </div>
+
+                <!-- Animated tanker -->
+                <div class="map-tanker" id="map-tanker" style="left:22%; top:32%;">
+                  <div class="tanker-icon">🚛</div>
+                  <div class="tanker-pulse"></div>
+                  <div class="marker-label tanker-label">Tanker #482</div>
+                </div>
+
+                <!-- Route line -->
+                <svg class="route-svg" id="route-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path d="M 22 32 L 22 55 L 50 55 L 50 40" stroke="#0ea5e9" stroke-width="0.8" stroke-dasharray="2 1.5" fill="none" opacity="0.7"/>
+                </svg>
+
+                <!-- Map overlay -->
+                <div class="map-overlay-top">
+                  <div class="map-location-pill">
+                    <i data-lucide="map-pin" size="14"></i>
+                    Kothrud, Pune
+                  </div>
+                  <button class="map-refresh-btn" onclick="refreshTankerPosition()">
+                    <i data-lucide="refresh-cw" size="14"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tracking Info Panel -->
+            <div class="tracking-panel">
+              <div class="panel-handle"></div>
+              <div class="tracking-booking-row">
+                <div>
+                  <div class="tracking-booking-id">#TKR-2847</div>
+                  <div class="tracking-booking-status">
+                    <span class="pulse-dot"></span> En Route
+                  </div>
+                </div>
+                <div class="tracking-eta-badge">
+                  <span id="eta-countdown">18 min</span>
+                  <span class="eta-label">ETA</span>
+                </div>
+              </div>
+
+              <div class="tracking-progress-bar">
+                <div class="tracking-fill" id="tracking-fill" style="width: 65%;"></div>
+              </div>
+              <div class="tracking-progress-labels">
+                <span>Depot (Kothrud)</span>
+                <span>Your Home</span>
+              </div>
+
+              <div class="driver-info-card">
+                <div class="driver-avatar large">SK</div>
+                <div class="driver-details-info">
+                  <div class="driver-name-large">Sunil Kamble</div>
+                  <div class="driver-vehicle-info">
+                    <span class="vehicle-tag">MH-12 TW 4521</span>
+                    <span class="vehicle-cap">6,000L Tanker</span>
+                  </div>
+                  <div class="driver-rating">⭐ 4.7 · 312 deliveries</div>
+                </div>
+                <div class="driver-actions">
+                  <button class="driver-action-btn call"><i data-lucide="phone" size="16"></i></button>
+                  <button class="driver-action-btn msg"><i data-lucide="message-circle" size="16"></i></button>
+                </div>
+              </div>
+
+              <div class="live-stats-row">
+                <div class="live-stat">
+                  <i data-lucide="navigation" size="16"></i>
+                  <span class="live-stat-val" id="live-distance">3.2 km</span>
+                  <span class="live-stat-label">Away</span>
+                </div>
+                <div class="live-stat">
+                  <i data-lucide="gauge" size="16"></i>
+                  <span class="live-stat-val">32 km/h</span>
+                  <span class="live-stat-label">Speed</span>
+                </div>
+                <div class="live-stat">
+                  <i data-lucide="droplets" size="16"></i>
+                  <span class="live-stat-val">4,000L</span>
+                  <span class="live-stat-label">Load</span>
+                </div>
+              </div>
+
+              <!-- OTP Section -->
+              <div class="otp-section" id="otp-section">
+                <div class="otp-title">
+                  <i data-lucide="shield-check" size="18"></i>
+                  OTP Delivery Verification
+                </div>
+                <p class="otp-desc">Share this OTP with the driver upon arrival to confirm delivery</p>
+                <div class="otp-display">
+                  <div class="otp-box">7</div>
+                  <div class="otp-box">3</div>
+                  <div class="otp-box">9</div>
+                  <div class="otp-box">1</div>
+                </div>
+                <button class="otp-confirm-btn" onclick="showOTPConfirmed()">
+                  <i data-lucide="check" size="16"></i> Mark as Delivered
+                </button>
+              </div>
+            </div>
+
+            <!-- OTP Confirmed overlay -->
+            <div class="otp-confirmed-overlay hidden" id="otp-confirmed">
+              <div class="otp-confirmed-card">
+                <div class="confirmed-icon"><i data-lucide="check-circle" size="52"></i></div>
+                <h3>Delivery Confirmed!</h3>
+                <p>4,000L delivered by Sunil Kamble</p>
+                <div class="rating-prompt">
+                  <p>Rate your experience:</p>
+                  <div class="star-rating" id="star-rating">
+                    <span class="star" onclick="setRating(1)">★</span>
+                    <span class="star" onclick="setRating(2)">★</span>
+                    <span class="star" onclick="setRating(3)">★</span>
+                    <span class="star" onclick="setRating(4)">★</span>
+                    <span class="star" onclick="setRating(5)">★</span>
+                  </div>
+                </div>
+                <button class="modal-btn" onclick="closeOTPConfirmed()">Done</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== HISTORY PAGE ===== -->
+        <section class="page" id="page-history">
+          <div class="page-inner">
+            <div class="history-summary-row">
+              <div class="h-sum-card">
+                <div class="h-sum-value">28</div>
+                <div class="h-sum-label">Total Trips</div>
+              </div>
+              <div class="h-sum-card">
+                <div class="h-sum-value">1.6L</div>
+                <div class="h-sum-label">Litres Total</div>
+              </div>
+              <div class="h-sum-card">
+                <div class="h-sum-value">₹18.2k</div>
+                <div class="h-sum-label">Spent</div>
+              </div>
+            </div>
+
+            <div class="filter-tabs">
+              <button class="filter-tab active" onclick="filterHistory('all', this)">All</button>
+              <button class="filter-tab" onclick="filterHistory('pmc', this)">PMC</button>
+              <button class="filter-tab" onclick="filterHistory('private', this)">Private</button>
+              <button class="filter-tab" onclick="filterHistory('complaint', this)">Complaints</button>
+            </div>
+
+            <div class="history-list" id="history-list">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== COMPLAINTS PAGE ===== -->
+        <section class="page" id="page-complaints">
+          <div class="page-inner">
+            <div class="page-header-card red-gradient">
+              <h2>Report a Problem</h2>
+              <p>Your complaint will be escalated to PMC authorities within 24 hours</p>
+            </div>
+
+            <div class="complaint-tabs">
+              <button class="complaint-tab active" onclick="showComplaintTab('new', this)">New Complaint</button>
+              <button class="complaint-tab" onclick="showComplaintTab('active', this)">Active <span class="tab-badge">2</span></button>
+              <button class="complaint-tab" onclick="showComplaintTab('resolved', this)">Resolved</button>
+            </div>
+
+            <!-- New Complaint Form -->
+            <div class="complaint-panel" id="complaint-new">
+              <div class="complaint-type-grid">
+                <div class="complaint-type-btn selected" onclick="selectComplaintType('delay', this)">
+                  <i data-lucide="clock" size="20"></i>
+                  <span>Delay / No-Show</span>
+                </div>
+                <div class="complaint-type-btn" onclick="selectComplaintType('overcharge', this)">
+                  <i data-lucide="indian-rupee" size="20"></i>
+                  <span>Overcharging</span>
+                </div>
+                <div class="complaint-type-btn" onclick="selectComplaintType('underdelivery', this)">
+                  <i data-lucide="droplets" size="20"></i>
+                  <span>Under-delivery</span>
+                </div>
+                <div class="complaint-type-btn" onclick="selectComplaintType('quality', this)">
+                  <i data-lucide="flask-conical" size="20"></i>
+                  <span>Water Quality</span>
+                </div>
+                <div class="complaint-type-btn" onclick="selectComplaintType('diversion', this)">
+                  <i data-lucide="route-off" size="20"></i>
+                  <span>Tanker Diverted</span>
+                </div>
+                <div class="complaint-type-btn" onclick="selectComplaintType('other', this)">
+                  <i data-lucide="more-horizontal" size="20"></i>
+                  <span>Other</span>
+                </div>
+              </div>
+
+              <div class="form-group mt">
+                <label>Booking Reference (if any)</label>
+                <input type="text" class="form-input" placeholder="e.g. TKR-2847" id="complaint-ref" />
+              </div>
+
+              <div class="form-group">
+                <label>Describe the Issue</label>
+                <textarea class="form-textarea" placeholder="Explain what happened in detail…" rows="4" id="complaint-desc"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Overcharged Amount <span class="optional-tag">(if applicable)</span></label>
+                <div class="input-prefix-wrapper">
+                  <span class="input-prefix">₹</span>
+                  <input type="number" class="form-input with-prefix" placeholder="0" id="complaint-amount" />
+                </div>
+              </div>
+
+              <div class="evidence-upload" id="evidence-upload-container">
+                <input type="file" id="evidence-file-input" class="hidden" accept="image/*" onchange="handleFileUpload(this)">
+                <div class="upload-icon" id="upload-status-icon"><i data-lucide="camera" size="24"></i></div>
+                <div>
+                  <div class="upload-title" id="upload-status-title">Add Evidence (optional)</div>
+                  <div class="upload-sub" id="upload-status-sub">Photo of receipt, invoice, or damage</div>
+                </div>
+                <button class="upload-btn" id="upload-trigger-btn" onclick="triggerUpload()">Upload</button>
+              </div>
+
+              <div class="escalation-note">
+                <i data-lucide="info" size="14"></i>
+                Unresolved complaints are auto-escalated to PMC Water Department in 48 hours.
+              </div>
+
+              <button class="submit-complaint-btn" onclick="submitComplaint()">
+                <i data-lucide="send" size="16"></i> Submit Complaint
+              </button>
+            </div>
+
+            <!-- Active Complaints -->
+            <div class="complaint-panel hidden" id="complaint-active">
+              <div class="complaint-card">
+                <div class="cc-header">
+                  <span class="cc-ref">CMP-1043</span>
+                  <span class="cc-status review">Under Review</span>
+                </div>
+                <div class="cc-type"><i data-lucide="indian-rupee" size="14"></i> Overcharging — ₹200 extra charged</div>
+                <div class="cc-date">Filed Apr 14 · Booking #TKR-2791</div>
+                <div class="cc-progress-bar"><div class="cc-fill" style="width:40%"></div></div>
+                <div class="cc-steps">
+                  <span class="cc-step done">Filed</span>
+                  <span class="cc-step done">Acknowledged</span>
+                  <span class="cc-step active">PMC Review</span>
+                  <span class="cc-step">Resolution</span>
+                </div>
+              </div>
+              <div class="complaint-card">
+                <div class="cc-header">
+                  <span class="cc-ref">CMP-1041</span>
+                  <span class="cc-status pending">Pending</span>
+                </div>
+                <div class="cc-type"><i data-lucide="clock" size="14"></i> No-Show — Tanker never arrived</div>
+                <div class="cc-date">Filed Apr 12 · Booking #TKR-2780</div>
+                <div class="cc-progress-bar"><div class="cc-fill" style="width:15%"></div></div>
+                <div class="cc-steps">
+                  <span class="cc-step done">Filed</span>
+                  <span class="cc-step active">Acknowledged</span>
+                  <span class="cc-step">PMC Review</span>
+                  <span class="cc-step">Resolution</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resolved Complaints -->
+            <div class="complaint-panel hidden" id="complaint-resolved">
+              <div class="resolved-item">
+                <div class="resolved-icon"><i data-lucide="check-circle" size="20"></i></div>
+                <div class="resolved-details">
+                  <div class="resolved-ref">CMP-1037 — Delay / No-Show</div>
+                  <div class="resolved-action">Refund of ₹150 processed · Apr 10</div>
+                </div>
+              </div>
+              <div class="resolved-item">
+                <div class="resolved-icon"><i data-lucide="check-circle" size="20"></i></div>
+                <div class="resolved-details">
+                  <div class="resolved-ref">CMP-1028 — Underdelivery (1000L short)</div>
+                  <div class="resolved-action">Driver warned · Apr 3 · Re-delivery scheduled</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confirmation Modal -->
+            <div class="modal-overlay hidden" id="complaint-modal">
+              <div class="modal-card">
+                <div class="modal-success-icon complaint-clr"><i data-lucide="check-circle" size="48"></i></div>
+                <h3>Complaint Submitted</h3>
+                <div class="modal-booking-id">CMP-<span id="modal-cmp-num">1058</span></div>
+                <p>Your complaint has been logged. You'll receive updates at each stage via SMS and in-app notifications.</p>
+                <div class="modal-info-row">
+                  <i data-lucide="clock" size="16"></i>
+                  <span>Expected resolution in <strong>48 hours</strong></span>
+                </div>
+                <button class="modal-btn" onclick="closeModal('complaint-modal')">Done</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== ALERTS PAGE ===== -->
+        <section class="page" id="page-alerts">
+          <div class="page-inner">
+            <div class="page-header-card orange-gradient">
+              <h2>Water Shortage Alerts</h2>
+              <p>Stay informed about supply disruptions and shortages in Pune</p>
+            </div>
+
+            <div class="alert-summary-row">
+              <div class="as-card critical">
+                <div class="as-num">3</div>
+                <div class="as-label">Critical Zones</div>
+              </div>
+              <div class="as-card moderate">
+                <div class="as-num">8</div>
+                <div class="as-label">Moderate Shortage</div>
+              </div>
+              <div class="as-card normal">
+                <div class="as-num">14</div>
+                <div class="as-label">Normal Supply</div>
+              </div>
+            </div>
+
+            <div class="section-title">Live Alerts — Pune</div>
+            <div class="alerts-list">
+              <div class="alert-card critical-card">
+                <div class="alert-card-header">
+                  <span class="alert-area-tag critical-tag"><i data-lucide="alert-circle" size="12"></i> Critical</span>
+                  <span class="alert-time">Updated 12 min ago</span>
+                </div>
+                <h4 class="alert-area">Warje — Ganesh Nagar</h4>
+                <p class="alert-desc">Main pipeline burst. No water supply for 24–36 hours. Emergency tankers dispatched (12 units).</p>
+                <div class="alert-actions">
+                  <button class="alert-book-btn" onclick="navigateTo('book')"><i data-lucide="droplets" size="14"></i> Book Emergency Tanker</button>
+                </div>
+              </div>
+
+              <div class="alert-card critical-card">
+                <div class="alert-card-header">
+                  <span class="alert-area-tag critical-tag"><i data-lucide="alert-circle" size="12"></i> Critical</span>
+                  <span class="alert-time">Updated 1 hr ago</span>
+                </div>
+                <h4 class="alert-area">Katraj — Ambegaon</h4>
+                <p class="alert-desc">PMC tanker strike impact — limited supply. Private tankers available. Expect 4–6 hr wait times.</p>
+                <div class="alert-actions">
+                  <button class="alert-book-btn" onclick="navigateTo('book')"><i data-lucide="droplets" size="14"></i> Book Tanker</button>
+                </div>
+              </div>
+
+              <div class="alert-card moderate-card">
+                <div class="alert-card-header">
+                  <span class="alert-area-tag moderate-tag"><i data-lucide="alert-triangle" size="12"></i> Moderate</span>
+                  <span class="alert-time">Updated 2 hrs ago</span>
+                </div>
+                <h4 class="alert-area">Hadapsar — Magarpatta</h4>
+                <p class="alert-desc">High demand period. 30% reduced PMC supply. Book tankers in advance to avoid shortfall.</p>
+                <div class="alert-actions">
+                  <button class="alert-book-btn outline" onclick="navigateTo('book')">Schedule Booking</button>
+                </div>
+              </div>
+
+              <div class="alert-card moderate-card">
+                <div class="alert-card-header">
+                  <span class="alert-area-tag moderate-tag"><i data-lucide="alert-triangle" size="12"></i> Moderate</span>
+                  <span class="alert-time">Updated 3 hrs ago</span>
+                </div>
+                <h4 class="alert-area">Kondhwa — NIBM Road</h4>
+                <p class="alert-desc">Pump maintenance scheduled 8 AM–2 PM tomorrow. Book tankers 1 day in advance.</p>
+                <div class="alert-actions">
+                  <button class="alert-book-btn outline" onclick="navigateTo('book')">Plan Ahead</button>
+                </div>
+              </div>
+
+              <div class="alert-card info-card">
+                <div class="alert-card-header">
+                  <span class="alert-area-tag info-tag"><i data-lucide="info" size="12"></i> Advisory</span>
+                  <span class="alert-time">Apr 17</span>
+                </div>
+                <h4 class="alert-area">PMC Policy Update</h4>
+                <p class="alert-desc">PMC has increased free tanker quota for BPL households in Kothrud and Pimpri from 2 to 3 trips/week.</p>
+              </div>
+            </div>
+
+            <div class="section-title">Notification Preferences</div>
+            <div class="notif-prefs-card">
+              <div class="notif-pref-item">
+                <div class="notif-pref-label">
+                  <div class="notif-pref-name">My Area Alerts</div>
+                  <div class="notif-pref-desc">Alerts for Kothrud and surroundings</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="notif-pref-item">
+                <div class="notif-pref-label">
+                  <div class="notif-pref-name">Emergency Supply Disruptions</div>
+                  <div class="notif-pref-desc">Critical alerts city-wide</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="notif-pref-item">
+                <div class="notif-pref-label">
+                  <div class="notif-pref-name">Tanker Strike Alerts</div>
+                  <div class="notif-pref-desc">PMC tanker service disruptions</div>
+                </div>
+                <div class="toggle-switch" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="notif-pref-item">
+                <div class="notif-pref-label">
+                  <div class="notif-pref-name">Rate / Price Alerts</div>
+                  <div class="notif-pref-desc">Overcharging in your area</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== SOCIETY PAGE ===== -->
+        <section class="page" id="page-society">
+          <div class="page-inner">
+            <div class="society-header-card">
+              <div class="society-icon-wrap"><i data-lucide="building-2" size="32"></i></div>
+              <div>
+                <div class="society-name">Sai Paradise CHS</div>
+                <div class="society-meta">Kothrud · 48 Flats · Admin: M. Pawar</div>
+              </div>
+            </div>
+
+            <div class="society-stats-grid">
+              <div class="soc-stat-card blue">
+                <div class="soc-stat-val">3</div>
+                <div class="soc-stat-label">Tankers This Week</div>
+              </div>
+              <div class="soc-stat-card teal">
+                <div class="soc-stat-val">18,000L</div>
+                <div class="soc-stat-label">Water Received</div>
+              </div>
+              <div class="soc-stat-card purple">
+                <div class="soc-stat-val">₹2,450</div>
+                <div class="soc-stat-label">Total Cost</div>
+              </div>
+              <div class="soc-stat-card green">
+                <div class="soc-stat-val">94%</div>
+                <div class="soc-stat-label">On-Time Rate</div>
+              </div>
+            </div>
+
+            <div class="section-title">Society Water Usage</div>
+            <div class="usage-card">
+              <div class="usage-header">
+                <div>
+                  <div class="usage-total">18,000 L</div>
+                  <div class="usage-label">This Week · 48 Flats</div>
+                </div>
+                <div class="usage-change positive">
+                  <i data-lucide="trending-down" size="14"></i> -12% vs last week
+                </div>
+              </div>
+              <div class="bar-chart" id="society-chart"></div>
+              <div class="bar-labels">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+              </div>
+            </div>
+
+            <div class="section-title">Residents' Requests</div>
+            <div class="resident-requests">
+              <div class="rr-item">
+                <div class="rr-flat">Flat 101</div>
+                <div class="rr-details">
+                  <div class="rr-name">Suresh Jadhav</div>
+                  <div class="rr-req">2000L · Tomorrow Morning</div>
+                </div>
+                <div class="rr-actions">
+                  <button class="rr-approve"><i data-lucide="check" size="14"></i></button>
+                  <button class="rr-reject"><i data-lucide="x" size="14"></i></button>
+                </div>
+              </div>
+              <div class="rr-item">
+                <div class="rr-flat">Flat 304</div>
+                <div class="rr-details">
+                  <div class="rr-name">Priya Deshmukh</div>
+                  <div class="rr-req">4000L · Today Evening</div>
+                </div>
+                <div class="rr-actions">
+                  <button class="rr-approve"><i data-lucide="check" size="14"></i></button>
+                  <button class="rr-reject"><i data-lucide="x" size="14"></i></button>
+                </div>
+              </div>
+              <div class="rr-item approved">
+                <div class="rr-flat">Flat 208</div>
+                <div class="rr-details">
+                  <div class="rr-name">Kavita Mane</div>
+                  <div class="rr-req">6000L · Approved · Booked #TKR-2847</div>
+                </div>
+                <div class="rr-status-tag approved-tag">Approved</div>
+              </div>
+            </div>
+
+            <div class="section-title">Upcoming Schedule</div>
+            <div class="schedule-list">
+              <div class="schedule-item">
+                <div class="schedule-date-box">
+                  <div class="sch-day">18</div>
+                  <div class="sch-mon">APR</div>
+                </div>
+                <div class="schedule-info">
+                  <div class="sch-title">6000L PMC Tanker — Morning</div>
+                  <div class="sch-meta">Driver: Sunil K. · #TKR-2847 · ₹0</div>
+                </div>
+                <span class="sch-status confirmed">Confirmed</span>
+              </div>
+              <div class="schedule-item">
+                <div class="schedule-date-box">
+                  <div class="sch-day">20</div>
+                  <div class="sch-mon">APR</div>
+                </div>
+                <div class="schedule-info">
+                  <div class="sch-title">4000L Private Tanker — Afternoon</div>
+                  <div class="sch-meta">Vendor: Shree Waters · #TKR-2901 · ₹620</div>
+                </div>
+                <span class="sch-status pending-s">Pending</span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== ADMIN DASHBOARD PAGE ===== -->
+        <section class="page" id="page-admin">
+          <div class="page-inner">
+            <div class="admin-header">
+              <div class="admin-badge"><i data-lucide="shield" size="14"></i> PMC Authority View</div>
+              <div class="admin-title">City Water Operations</div>
+              <div class="admin-subtitle">Pune Municipal Corporation — Water Tanker Control</div>
+            </div>
+
+            <div class="admin-stats-grid">
+              <div class="admin-stat-card">
+                <div class="admin-stat-icon tankers"><i data-lucide="truck" size="22"></i></div>
+                <div class="admin-stat-value">164</div>
+                <div class="admin-stat-label">Active Tankers Today</div>
+                <div class="admin-stat-change up">↑ 8 more than yesterday</div>
+              </div>
+              <div class="admin-stat-card">
+                <div class="admin-stat-icon complaints"><i data-lucide="message-square-warning" size="22"></i></div>
+                <div class="admin-stat-value" id="admin-complaints-count">23</div>
+                <div class="admin-stat-label">Open Complaints</div>
+                <div class="admin-stat-change down">↓ 5 resolved today</div>
+              </div>
+              <div class="admin-stat-card">
+                <div class="admin-stat-icon shortage"><i data-lucide="alert-circle" size="22"></i></div>
+                <div class="admin-stat-value">3</div>
+                <div class="admin-stat-label">Critical Zones</div>
+                <div class="admin-stat-change alert">⚠ Needs attention</div>
+              </div>
+              <div class="admin-stat-card">
+                <div class="admin-stat-icon delivery"><i data-lucide="check-circle" size="22"></i></div>
+                <div class="admin-stat-value">91%</div>
+                <div class="admin-stat-label">On-Time Delivery</div>
+                <div class="admin-stat-change up">↑ 3% vs last week</div>
+              </div>
+            </div>
+
+            <div class="admin-two-col">
+              <!-- Tanker Fleet -->
+              <div class="admin-panel">
+                <div class="admin-panel-header">
+                  <span>Live Fleet Status</span>
+                  <span class="live-indicator"><span class="pulse-dot small"></span> LIVE</span>
+                </div>
+                <div class="fleet-list">
+                  <div class="fleet-item">
+                    <div class="fleet-id">MH-12 TW 4521</div>
+                    <div class="fleet-route">Kothrud → Warje</div>
+                    <span class="fleet-status en-route-s">En Route</span>
+                  </div>
+                  <div class="fleet-item">
+                    <div class="fleet-id">MH-14 AB 2210</div>
+                    <div class="fleet-route">Depot → Katraj</div>
+                    <span class="fleet-status dispatched-s">Dispatched</span>
+                  </div>
+                  <div class="fleet-item">
+                    <div class="fleet-id">MH-12 CC 9903</div>
+                    <div class="fleet-route">Baner — Delivered</div>
+                    <span class="fleet-status delivered-s">Delivered</span>
+                  </div>
+                  <div class="fleet-item">
+                    <div class="fleet-id">MH-12 ZX 1188</div>
+                    <div class="fleet-route">Kondhwa → Hadapsar</div>
+                    <span class="fleet-status en-route-s">En Route</span>
+                  </div>
+                  <div class="fleet-item flagged">
+                    <div class="fleet-id">MH-14 YP 5567</div>
+                    <div class="fleet-route">⚠ Off-route detected</div>
+                    <span class="fleet-status diverted-s">Flagged</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Shortage Zones -->
+              <div class="admin-panel">
+                <div class="admin-panel-header">
+                  <span>Shortage Zones</span>
+                  <button class="panel-action-btn" onclick="navigateTo('alerts')">View All</button>
+                </div>
+                <div class="shortage-zone-list">
+                  <div class="sz-item critical-sz">
+                    <div class="sz-area">Warje — Ganesh Nagar</div>
+                    <div class="sz-demand">Demand: <strong>12 tankers</strong></div>
+                    <div class="sz-bar-wrap"><div class="sz-bar" style="width:95%; background: var(--danger)"></div></div>
+                  </div>
+                  <div class="sz-item critical-sz">
+                    <div class="sz-area">Katraj — Ambegaon</div>
+                    <div class="sz-demand">Demand: <strong>9 tankers</strong></div>
+                    <div class="sz-bar-wrap"><div class="sz-bar" style="width:88%; background: var(--danger)"></div></div>
+                  </div>
+                  <div class="sz-item moderate-sz">
+                    <div class="sz-area">Hadapsar — Magarpatta</div>
+                    <div class="sz-demand">Demand: <strong>6 tankers</strong></div>
+                    <div class="sz-bar-wrap"><div class="sz-bar" style="width:65%; background: var(--warning)"></div></div>
+                  </div>
+                  <div class="sz-item moderate-sz">
+                    <div class="sz-area">Kondhwa — NIBM</div>
+                    <div class="sz-demand">Demand: <strong>4 tankers</strong></div>
+                    <div class="sz-bar-wrap"><div class="sz-bar" style="width:45%; background: var(--warning)"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-title">Complaint Overview</div>
+            <div class="admin-complaint-table" id="admin-complaint-table">
+              <div class="table-header-row">
+                <span>Ref</span><span>Type</span><span>Area</span><span>Filed</span><span>Status</span>
+              </div>
+              <div class="table-row">
+                <span class="tc-ref">CMP-1058</span>
+                <span>Overcharging</span>
+                <span>Kothrud</span>
+                <span>Today</span>
+                <span class="tc-status new-s">New</span>
+              </div>
+              <div class="table-row">
+                <span class="tc-ref">CMP-1057</span>
+                <span>Diversion</span>
+                <span>Warje</span>
+                <span>Today</span>
+                <span class="tc-status urgent-s">Urgent</span>
+              </div>
+              <div class="table-row">
+                <span class="tc-ref">CMP-1043</span>
+                <span>Overcharging</span>
+                <span>Kothrud</span>
+                <span>Apr 14</span>
+                <span class="tc-status review-s">In Review</span>
+              </div>
+              <div class="table-row">
+                <span class="tc-ref">CMP-1041</span>
+                <span>No-Show</span>
+                <span>Katraj</span>
+                <span>Apr 12</span>
+                <span class="tc-status review-s">In Review</span>
+              </div>
+              <div class="table-row">
+                <span class="tc-ref">CMP-1037</span>
+                <span>Delay</span>
+                <span>Hadapsar</span>
+                <span>Apr 10</span>
+                <span class="tc-status resolved-s">Resolved</span>
+              </div>
+            </div>
+
+            <div class="admin-actions-row">
+              <button class="admin-action-btn primary-a" onclick="openAdminModal('dispatch')">
+                <i data-lucide="send" size="16"></i> Dispatch Emergency Tanker
+              </button>
+              <button class="admin-action-btn secondary-a" onclick="exportDailyReport()">
+                <i data-lucide="download" size="16"></i> Export Daily Report
+              </button>
+              <button class="admin-action-btn danger-a" onclick="openAdminModal('alert')">
+                <i data-lucide="alert-circle" size="16"></i> Issue Shortage Alert
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Admin: Dispatch Modal -->
+    <div class="modal-overlay hidden" id="dispatch-modal">
+      <div class="modal-card">
+        <div class="modal-success-icon"><i data-lucide="truck" size="48"></i></div>
+        <h3>Dispatch Emergency Tanker</h3>
+        <p>Send an emergency unit to a high-demand area immediately.</p>
+        <div class="form-group" style="text-align: left;">
+          <label>Select Target Area</label>
+          <div class="select-wrapper">
+            <select class="form-select" id="dispatch-area">
+              <option value="Warje">Warje — Ganesh Nagar</option>
+              <option value="Katraj">Katraj — Ambegaon</option>
+              <option value="Hadapsar">Hadapsar — Magarpatta</option>
+              <option value="Kothrud">Kothrud — Ideal Colony</option>
+            </select>
+            <i data-lucide="chevron-down" size="16"></i>
+          </div>
+        </div>
+        <div class="form-group" style="text-align: left;">
+          <label>Select Tanker Unit</label>
+          <div class="select-wrapper">
+            <select class="form-select" id="dispatch-unit">
+              <option>PMC Unit #882 (Available)</option>
+              <option>PMC Unit #412 (Available)</option>
+              <option>PMC Unit #901 (Available)</option>
+            </select>
+            <i data-lucide="chevron-down" size="16"></i>
+          </div>
+        </div>
+        <button class="book-btn" onclick="confirmDispatch()">Confirm Dispatch</button>
+        <button class="modal-btn" onclick="closeModal('dispatch-modal')">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Admin: Export Modal -->
+    <div class="modal-overlay hidden" id="export-modal">
+      <div class="modal-card">
+        <div id="export-loading">
+          <div class="spinner-container" style="margin-bottom: 1.5rem;">
+            <div class="loader-bar" style="width: 100%; position: relative; animation: load 1s infinite alternate;"></div>
+          </div>
+          <h3>Generating Daily Report...</h3>
+          <p>Processing April 17th tanker movements and complaint logs.</p>
+        </div>
+        <div id="export-complete" class="hidden">
+          <div class="modal-success-icon"><i data-lucide="check-circle" size="48"></i></div>
+          <h3>Report Generated</h3>
+          <p>The daily PDF report has been downloaded to your device.</p>
+          <button class="modal-btn" onclick="closeModal('export-modal')">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin: Alert Modal -->
+    <div class="modal-overlay hidden" id="alert-modal">
+      <div class="modal-card">
+        <div class="modal-success-icon" style="color: var(--warning);"><i data-lucide="alert-triangle" size="48"></i></div>
+        <h3>Issue Shortage Alert</h3>
+        <p>Broadcast a water supply alert to residents in a specific area.</p>
+        <div class="form-group" style="text-align: left;">
+          <label>Area Name</label>
+          <input type="text" class="form-input" id="alert-area-name" placeholder="e.g. Aundh Road">
+        </div>
+        <div class="form-group" style="text-align: left;">
+          <label>Severity Level</label>
+          <div class="select-wrapper">
+            <select class="form-select" id="alert-severity">
+              <option value="critical">Critical (Red)</option>
+              <option value="moderate">Moderate (Orange)</option>
+            </select>
+            <i data-lucide="chevron-down" size="16"></i>
+          </div>
+        </div>
+        <div class="form-group" style="text-align: left;">
+          <label>Message</label>
+          <textarea class="form-textarea" id="alert-msg" placeholder="Describe the disruption..."></textarea>
+        </div>
+        <button class="book-btn" style="background: var(--warning);" onclick="confirmAlert()">Broadcast Alert</button>
+        <button class="modal-btn" onclick="closeModal('alert-modal')">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Bottom Tab Bar (Mobile) -->
+    <nav class="bottom-tabbar">
+      <button class="tab-item active" onclick="navigateTo('dashboard')" id="tab-dashboard">
+        <i data-lucide="layout-dashboard" size="22"></i>
+        <span>Home</span>
+      </button>
+      <button class="tab-item" onclick="navigateTo('book')" id="tab-book">
+        <i data-lucide="droplets" size="22"></i>
+        <span>Book</span>
+      </button>
+      <button class="tab-item" onclick="navigateTo('track')" id="tab-track">
+        <i data-lucide="map-pin" size="22"></i>
+        <span>Track</span>
+      </button>
+      <button class="tab-item" onclick="navigateTo('complaints')" id="tab-complaints">
+        <i data-lucide="message-square-warning" size="22"></i>
+        <span>Complaints</span>
+      </button>
+      <button class="tab-item" onclick="navigateTo('alerts')" id="tab-alerts">
+        <i data-lucide="bell" size="22"></i>
+        <span>Alerts</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
